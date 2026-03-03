@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      :root {
+        --mario-red: #E52D27;
+        --mario-blue: #0437F2;
+        --mario-yellow: #FFCC00;
+        --yoshi-green: #43B047;
+        --bg-color: #FDFFFC;
+      }
+      
+      body { 
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        background-color: #E0F2FE; 
+        margin: 0; 
+        display: flex; 
+        flex-direction: column; 
+        height: 100vh;
+      }
+
+      /* Vibrant Header */
+      header {
+        background-color: var(--mario-blue);
+        padding: 15px;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 0px rgba(0,0,0,0.1);
+      }
+      .brand { font-weight: 900; font-size: 1.2em; letter-spacing: 1px; }
+      .pillar-box { display: flex; gap: 8px; background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px; }
+      .pillar { font-size: 18px; filter: grayscale(100%); opacity: 0.3; transition: 0.3s; }
+      .pillar.active { filter: grayscale(0%); opacity: 1; transform: scale(1.2); }
+
+      #chat-container {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      /* Colorful Bubbles */
+      .bubble {
+        max-width: 80%;
+        padding: 14px 18px;
+        border-radius: 25px;
+        font-size: 16px;
+        line-height: 1.4;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+      @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+      .user-bubble {
+        align-self: flex-end;
+        background-color: var(--mario-red);
+        color: white;
+        border-bottom-right-radius: 4px;
+      }
+      .ai-bubble {
+        align-self: flex-start;
+        background-color: white;
+        color: #333;
+        border-bottom-left-radius: 4px;
+        border: 2px solid var(--mario-yellow);
+      }
+
+      /* Input Area */
+      #input-area {
+        background: white;
+        padding: 20px;
+        display: flex;
+        gap: 12px;
+        border-top: 4px solid var(--mario-yellow);
+      }
+      textarea {
+        flex: 1;
+        border: 2px solid #ddd;
+        border-radius: 15px;
+        padding: 12px;
+        outline: none;
+        font-size: 16px;
+        background: #F8FAFC;
+      }
+      .btn {
+        border: none;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        color: white;
+      }
+      .speak-btn { background: #94A3B8; }
+      .send-btn { background: var(--yoshi-green); box-shadow: 0 4px 0 #2D7A31; }
+      .send-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #2D7A31; }
+
+      .typing { font-style: italic; font-size: 14px; color: var(--mario-blue); margin-left: 20px; display: none; margin-bottom: 10px; }
+    </style>
+  </head>
+  <body>
+
+    <header>
+      <div class="brand">⭐ BIG BRO MODE</div>
+      <div class="pillar-box">
+        <span id="p-Reflection" class="pillar">🌟</span>
+        <span id="p-EQ" class="pillar">🧠</span>
+        <span id="p-Discipline" class="pillar">📚</span>
+        <span id="p-Moral" class="pillar">🛡️</span>
+      </div>
+    </header>
+
+    <div id="chat-container"></div>
+    <div id="typing-indicator" class="typing">Big Bro is thinking... 💭</div>
+
+    <div id="input-area">
+      <button class="btn speak-btn" onclick="startRecognition()">🎤</button>
+      <textarea id="userInput" rows="1" placeholder="Tell me everything..."></textarea>
+      <button class="btn send-btn" onclick="sendToAI()">🚀</button>
+    </div>
+
+    <script>
+      const chatContainer = document.getElementById('chat-container');
+      const typingIndicator = document.getElementById('typing-indicator');
+
+      function appendMessage(text, isUser) {
+        const bubble = document.createElement('div');
+        bubble.className = `bubble ${isUser ? 'user-bubble' : 'ai-bubble'}`;
+        bubble.innerText = text;
+        chatContainer.appendChild(bubble);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+
+      function callAI(text) {
+        typingIndicator.style.display = "block";
+      
+        // Prepare the data to send
+        const payload = JSON.stringify({ message: text });
+      
+        fetch('https://script.google.com/macros/s/AKfycbzArJWJbo2UoLWuLg7C_UXKy3fU4HhbGsds8DVhbNB0cNb7MXWK9HSQsaAG3rU0x9o/exec', {
+          method: 'POST',
+          mode: 'no-cors', // Keeps things simple for beginners
+          headers: { 'Content-Type': 'application/json' },
+          body: payload
+        })
+        .then(() => {
+          // Because 'no-cors' doesn't let us read the AI's reply directly,
+          // we show a confirmation. 
+          // PRO TIP: For Milestone 2, I will show you how to get the 
+          // full text back using a "JSONP" trick!
+          typingIndicator.style.display = "none";
+          appendMessage("Big Bro logged that! 👊 Check your Google Sheet to see my response for now.", false);
+          
+          // This lights up the icons manually for now so Ruthwik feels progress
+          updatePillarsManually(); 
+        })
+        .catch(err => {
+          console.error("Bridge Error:", err);
+          typingIndicator.style.display = "none";
+        });
+      }
+
+function updatePillarsManually() {
+  // We'll light up a random icon just for visual feedback
+  const pillars = ['Reflection', 'EQ', 'Discipline', 'Moral'];
+  const randomPillar = pillars[Math.floor(Math.random() * pillars.length)];
+  const el = document.getElementById('p-' + randomPillar);
+  if (el) el.classList.add('active');
+}
+
+      // Reverting to simpler Send Logic
+      function sendToAI() {
+        const inputField = document.getElementById('userInput');
+        const input = inputField.value.trim();
+        if (!input) return;
+
+        appendMessage(input, true);
+        inputField.value = "";
+        typingIndicator.style.display = "block";
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            typingIndicator.style.display = "none";
+            appendMessage(res, false);
+            updatePillars();
+          })
+          .getGeminiResponse(input);
+      }
+
+      // Enter key fix
+      document.getElementById('userInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendToAI();
+        }
+      });
+
+      function updatePillars() {
+        google.script.run.withSuccessHandler(activePillars => {
+          if (!activePillars) return;
+          activePillars.forEach(p => {
+            const el = document.getElementById('p-' + p);
+            if (el) el.classList.add('active');
+          });
+        }).getActivePillarsToday();
+      }
+
+      // Recognition placeholder (to avoid errors)
+      function startRecognition() {
+        alert("The microphone is currently undergoing a 'Power-Up' maintenance. Please type your message for now! ⌨️🚀");
+      }
+
+      window.onload = () => {
+        appendMessage("Hey Champion! 🚀 Big Bro is here. Ready to talk about your day?", false);
+        updatePillars();
+      };
+    </script>
+  </body>
+</html>
