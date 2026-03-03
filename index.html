@@ -177,6 +177,14 @@ function updatePillarsManually() {
   if (el) el.classList.add('active');
 }
 
+function updatePillarsManually() {
+  // We'll light up a random icon just for visual feedback
+  const pillars = ['Reflection', 'EQ', 'Discipline', 'Moral'];
+  const randomPillar = pillars[Math.floor(Math.random() * pillars.length)];
+  const el = document.getElementById('p-' + randomPillar);
+  if (el) el.classList.add('active');
+}
+
       // Reverting to simpler Send Logic
       function sendToAI() {
         const inputField = document.getElementById('userInput');
