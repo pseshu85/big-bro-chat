@@ -76,28 +76,27 @@
       }
 
      function callAI(text) {
-          typingIndicator.style.display = "block";
-        
-          // Replace this with your EXACT Web App URL from the New Deployment
-          const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzArJWJbo2UoLWuLg7C_UXKy3fU4HhbGsds8DVhbNB0cNb7MXWK9HSQsaAG3rU0x9o/exec';
-        
-          fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify({ message: text })
-          })
+        typingIndicator.style.display = "block";
+      
+        // Use your LATEST Web App URL here
+        const SCRIPT_URL = 'PASTE_YOUR_NEW_EXEC_URL_HERE';
+      
+        // We attach the message to the URL like a luggage tag
+        const finalUrl = SCRIPT_URL + "?message=" + encodeURIComponent(text);
+      
+        fetch(finalUrl)
           .then(response => response.text())
           .then(aiReply => {
             typingIndicator.style.display = "none";
-            // This will now show the REAL AI response instead of "Got it!"
             appendMessage(aiReply, false);
             updatePillars();
           })
           .catch(err => {
             typingIndicator.style.display = "none";
-            appendMessage("Bridge Error: " + err, false);
-            console.error(err);
+            console.error("Fetch Error:", err);
+            appendMessage("Connection error. Let's try again! 👊", false);
           });
-        }
+      }
 
       // THE WORKING MIC CODE
       function startRecognition() {
