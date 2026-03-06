@@ -75,19 +75,29 @@
         callAI(text);
       }
 
-      function callAI(text) {
-        typingIndicator.style.display = "block";
+     function callAI(text) {
+          typingIndicator.style.display = "block";
         
-        // This is the "Bridge" to your Google Brain
-        fetch(SCRIPT_URL, {
-          method: 'POST',
-          mode: 'no-cors', 
-          body: JSON.stringify({ message: text })
-        }).then(() => {
-          typingIndicator.style.display = "none";
-          appendMessage("Got it! 👊 Big Bro is logging that to your sheet now.", false);
-        });
-      }
+          // Replace this with your EXACT Web App URL from the New Deployment
+          const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzArJWJbo2UoLWuLg7C_UXKy3fU4HhbGsds8DVhbNB0cNb7MXWK9HSQsaAG3rU0x9o/exec';
+        
+          fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ message: text })
+          })
+          .then(response => response.text())
+          .then(aiReply => {
+            typingIndicator.style.display = "none";
+            // This will now show the REAL AI response instead of "Got it!"
+            appendMessage(aiReply, false);
+            updatePillars();
+          })
+          .catch(err => {
+            typingIndicator.style.display = "none";
+            appendMessage("Bridge Error: " + err, false);
+            console.error(err);
+          });
+        }
 
       // THE WORKING MIC CODE
       function startRecognition() {
