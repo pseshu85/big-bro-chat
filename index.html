@@ -104,20 +104,32 @@
 
         function callAI(text) {
             typingIndicator.style.display = "block";
-            
-            // This URL structure bypasses the CORS "Failed to Fetch" error
+        
+            // 1. Encode the message so spaces/emojis don't break the link
             const finalUrl = SCRIPT_URL + "?message=" + encodeURIComponent(text);
-
+        
+            console.log("Sending to:", finalUrl); // For your F12 Console debugging
+        
             fetch(finalUrl)
-                .then(response => response.text())
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.text();
+                })
                 .then(aiReply => {
                     typingIndicator.style.display = "none";
-                    appendMessage(aiReply, false);
-                    updatePillars();
+                    
+                    // If the reply is still empty, show a placeholder
+                    if (!aiReply || aiReply.trim() === "") {
+                        appendMessage("Big Bro is thinking hard, but forgot to speak! Try again? 👊", false);
+                    } else {
+                        appendMessage(aiReply, false);
+                        updatePillars();
+                    }
                 })
                 .catch(err => {
                     typingIndicator.style.display = "none";
-                    appendMessage("Connection error. Is your Script set to 'Anyone'?", false);
+                    console.error("Fetch Error:", err);
+                    appendMessage("Connection dropped! Check if the Script is set to 'Anyone'.", false);
                 });
         }
 
